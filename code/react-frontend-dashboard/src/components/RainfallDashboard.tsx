@@ -8,16 +8,40 @@ const RainfallDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [isLoading, setIsLoading] = useState(false);
   const [alertVisible, setAlertVisible] = useState(true);
+  const [realData, setRealData] = useState(null);
 
   // Simulated real-time data update
   const [lastUpdate, setLastUpdate] = useState(new Date().toLocaleString());
-  
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setLastUpdate(new Date().toLocaleString());
-    }, 60000);
-    return () => clearInterval(interval);
-  }, []);
+
+  const fetchData = async () => {
+    try {
+      setIsLoading(true);
+      const predictions = await rainfallAPI.getPredictions('Mumbai', 'January');
+      const risk = await rainfallAPI.getRiskAssessment('Mumbai');
+      
+      setRealData({ predictions, risk });
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (isLoading) {
+    return <div>Loading dashboard...</div>;
+  }
+
+  // For simulated Data
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     setLastUpdate(new Date().toLocaleString());
+  //   }, 60000);
+  //   return () => clearInterval(interval);
+  // }, []);
+
+    useEffect(() => {
+    fetchData();
+    }, []);
 
   // Sample data for visualizations
   const monthlyRainfall = [
